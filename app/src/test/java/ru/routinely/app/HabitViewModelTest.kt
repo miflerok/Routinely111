@@ -294,6 +294,33 @@ class HabitViewModelTest {
     }
 
     /**
+     * Привычка не должна появляться в статистике до даты своего создания.
+     */
+    @Test
+    fun `stats exclude habits before creation date`() = runTest {
+        val today = LocalDate.now()
+        val targetDate = today.minusDays(1)
+
+        val habit = Habit(
+            id = 12,
+            name = "Meditate",
+            type = "daily",
+            creationDate = startOfDayMillis(today)
+        )
+
+        habitDao.insertHabit(habit)
+
+        val viewModel = createViewModel()
+
+        viewModel.onStatsDateSelected(targetDate)
+        advanceUntilIdle()
+
+        val state = viewModel.statsUiState.first { !it.isLoading && it.selectedDate == targetDate }
+
+        assertTrue(state.selectedDateHabits.isEmpty())
+    }
+
+    /**
      * Двойной выбор сортировки по имени должен менять направление сортировки, сохраняя выбранный
      * режим сортировки.
      */

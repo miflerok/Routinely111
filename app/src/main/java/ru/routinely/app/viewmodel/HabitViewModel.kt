@@ -633,6 +633,10 @@ class HabitViewModel(
     }
 
     private fun shouldCountHabitOnDate(habit: Habit, date: LocalDate): Boolean {
+        val creationLocalDate = Instant.ofEpochMilli(habit.creationDate)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+        if (date.isBefore(creationLocalDate)) return false
         if (!habit.isArchived) return true
         val archiveDate = habit.archiveDate ?: return true
 
